@@ -1,1 +1,1 @@
-# walletEclipse
+# Wallet Eclipse
