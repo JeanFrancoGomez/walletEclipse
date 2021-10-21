@@ -21,8 +21,5 @@
         <Root additivity="true" level="warn">
             <appender-ref ref="fileLogger" />
         </Root>
-        <Root additivity="true" level="info" >
-            <appender-ref ref="fileLogger" />
-        </Root>
     </Loggers>
 </Configuration>
