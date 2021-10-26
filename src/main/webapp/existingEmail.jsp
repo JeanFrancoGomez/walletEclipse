@@ -22,8 +22,11 @@
                 <div class="col-lg-7">
                     <div class="p-5">
                         <div class="text-center">
-                            <h1 class="h4 text-gray-900 mb-4">Thank you for join us <%= request.getAttribute("nameNewUser")%>!</h1>
-                            <h1 class="h4 text-gray-900 mb-4">Check your email for user confirmation</h1>
+                            <h1 class="h4 text-gray-900 mb-4">The email <%= request.getAttribute("nameNewUser")%> is already registered!</h1>
+                            <h1 class="h4 text-gray-900 mb-4">Recover your password</h1>
+                            <div class="text-center">
+                                <a class="small" href="forgot-password.jsp">Forgot Password?</a>
+                            </div>
                         </div>
                         <div>
                             <a href="./" class="btn btn-primary btn-user btn-block">Sign in</a>

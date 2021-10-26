@@ -1,5 +1,7 @@
 package demo1;
 
+import java.sql.Date;
+
 import javax.persistence.EntityManager;
 
 import demo1.enity.Users;
@@ -14,7 +16,7 @@ public class App {
 			// Get EntityManager from EntityManagerFactory
 			em = PersistenceUtility.createEntityManager();
 
-			Users newUser = new Users("emailProva", "nameProva", "surnameProva", "passwordProva", "secretKeyProva", 15);
+			Users newUser = new Users("emailProva", "nameProva", "surnameProva", "passwordProva", "secretKeyProva", new Date(System.currentTimeMillis()) );
 
 			// Begin transaction
 			em.getTransaction().begin();

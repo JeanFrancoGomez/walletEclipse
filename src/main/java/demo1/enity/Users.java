@@ -1,10 +1,16 @@
 package demo1.enity;
 
+import java.util.Date;
 import java.util.Objects;
 
 import javax.persistence.*;
 
 @Entity
+@Table(name="users")
+@NamedQueries({
+	@NamedQuery(name="findUserByEmail",query="SELECT u FROM Users u WHERE u.email = :emailData"),
+	@NamedQuery(name="findUserBySecretKey",query="SELECT u FROM Users u WHERE u.secretKey = :keyData")
+})
 public class Users {
     private int idusers;
     private String email;
@@ -12,18 +18,18 @@ public class Users {
     private String surname;
     private String password;
     private String secretKey;
-    private int dataKey;
+    private Date dateKey;
 
     public Users() {}
     
-    public Users(String email, String name, String surname, String password, String secretKey, int dataKey) {
+    public Users(String email, String name, String surname, String password, String secretKey, Date dataKey) {
 		super();
 		this.email = email;
 		this.name = name;
 		this.surname = surname;
 		this.password = password;
 		this.secretKey = secretKey;
-		this.dataKey = dataKey;
+		this.dateKey = dataKey;
 	}
 
 	@Id
@@ -86,14 +92,14 @@ public class Users {
 	}
 
 	@Basic
-    @Column(name = "dataKey")
-	public int getDataKey() {
-		return dataKey;
+    @Column(name = "dateKey")
+	public Date getDateKey() {
+		return dateKey;
 	}
 
-	public void setDataKey(int dataKey) {
-		this.dataKey = dataKey;
-	}	
+	public void setDateKey(Date dateKey) {
+		this.dateKey = dateKey;
+	}
 	
 	@Override
 	public boolean equals(Object obj) {
@@ -104,13 +110,13 @@ public class Users {
 		if (getClass() != obj.getClass())
 			return false;
 		Users other = (Users) obj;
-		return dataKey == other.dataKey && Objects.equals(email, other.email) && idusers == other.idusers
+		return Objects.equals(dateKey, other.dateKey) && Objects.equals(email, other.email) && idusers == other.idusers
 				&& Objects.equals(name, other.name) && Objects.equals(password, other.password)
 				&& Objects.equals(secretKey, other.secretKey) && Objects.equals(surname, other.surname);
 	}
 
-    @Override
+	@Override
 	public int hashCode() {
-		return Objects.hash(dataKey, email, idusers, name, password, secretKey, surname);
+		return Objects.hash(dateKey, email, idusers, name, password, secretKey, surname);
 	}
 }

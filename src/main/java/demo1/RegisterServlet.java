@@ -11,24 +11,28 @@ import javax.crypto.SecretKey;
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
+
+import demo1.enity.Users;
+
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.sql.*;
 import java.util.Base64;
 import java.util.Properties;
-import java.time.LocalDateTime;
-
 
 @WebServlet(value = "/register")
 public class RegisterServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
 	
-	private ApplicationProperties appProp = ApplicationProperties.getInstance();    
-	private final long ONE_MINUTE_IN_MILLIS=60000;//millisecs
+	private ApplicationProperties appProp = ApplicationProperties.getInstance();
+	
+	private EntityManager em = null;
 	
     private boolean insertData(String secret) throws ClassNotFoundException, IOException, SQLException {
-
+    	
         Class.forName("com.mysql.cj.jdbc.Driver");
         Connection connection = DriverManager.getConnection(appProp.getUriMySql(), appProp.getUserMySql(), appProp.getPswMySql());
         String query = "SELECT secretKey FROM users WHERE secretKey=?";
@@ -58,10 +62,10 @@ public class RegisterServlet extends HttpServlet {
         if(secret != null) {
             try {
                 if(insertData(secret)) {
-                    request.getServletContext().getRequestDispatcher("/login.jsp" ).include(request,response);
+                    request.getServletContext().getRequestDispatcher("/index.jsp").include(request,response);
                 }
                 else {
-                	 request.getServletContext().getRequestDispatcher("/notFoundUser.jsp" ).include(request,response);
+                	 request.getServletContext().getRequestDispatcher("/notFoundUser.jsp").include(request,response);
                 }
             } catch (ClassNotFoundException | SQLException e) {
                 e.printStackTrace();
@@ -77,6 +81,10 @@ public class RegisterServlet extends HttpServlet {
 
 
 		try {
+			
+			PersistenceUtility.initPersistence();
+			em = PersistenceUtility.createEntityManager();
+			
 			KeyGenerator keyGen = KeyGenerator.getInstance("AES");
 			keyGen.init(128);
 	        SecretKey secretKey = keyGen.generateKey();
@@ -104,6 +112,16 @@ public class RegisterServlet extends HttpServlet {
 	                return null;
 	            }
 	        });
+	        
+	        
+	        Query queryUserByEmail = em.createNamedQuery("findUserByEmail");
+	        queryUserByEmail.setParameter("emailData", email);
+	        
+	        if( !queryUserByEmail.getResultList().isEmpty() ) {
+	        	request.setAttribute("emailRep",email);
+	            request.getServletContext().getRequestDispatcher("/existingEmail.jsp").forward(request, response);
+	        }
+	        
 	
 	        if(pass.equals(repPass)){
 	            
@@ -111,17 +129,11 @@ public class RegisterServlet extends HttpServlet {
                 mimeMessage.setSubject("Confirm user");
                 mimeMessage.setRecipients(Message.RecipientType.TO,InternetAddress.parse(email));
                 
-                Class.forName("com.mysql.cj.jdbc.Driver");
-                Connection connection = DriverManager.getConnection(appProp.getUriMySql(), appProp.getUserMySql(), appProp.getPswMySql());
-                String query = "INSERT INTO users (email, name, surname, password, secretKey, dataKey) VALUES (?, ?, ?, ?, ?, ?)";
-                PreparedStatement statement = connection.prepareStatement(query);
-                statement.setString(1, email);
-                statement.setString(2, name);
-                statement.setString(3, lastName);
-                statement.setString(4, PasswordManager.createHash(pass));
-                statement.setString(5, key);
-                statement.setDate(6, new Date(System.currentTimeMillis()) );
-                statement.executeUpdate();
+                Users newUser = new Users(email, name, lastName, PasswordManager.createHash(pass), key, new Date(System.currentTimeMillis()) );
+                
+                em.getTransaction().begin();
+    			em.persist(newUser);
+    			em.getTransaction().commit();
 
                 String htmlCod =
                         "<h3>By clicking on the link you accept the processing of your data for access to our service, thank you.</h3>"
@@ -139,9 +151,20 @@ public class RegisterServlet extends HttpServlet {
 	            request.getServletContext().getRequestDispatcher("/passwordDif.jsp" ).include(request,response);
 	        }
 	        
-		} catch (MessagingException | NoSuchAlgorithmException | ClassNotFoundException | SQLException e1) {
+		} catch (MessagingException | NoSuchAlgorithmException e1) {
 			e1.printStackTrace();
+			
+			if (em != null && em.getTransaction().isActive()) {
+				em.getTransaction().rollback();
+			}
+			
+		} finally {
+			if (em != null) {
+				em.close();
+			}
 		}
+		
+		PersistenceUtility.destroy();
     }
 
 	private void cancelSecretKey(String key) throws ClassNotFoundException, SQLException, IOException {
@@ -153,11 +176,11 @@ public class RegisterServlet extends HttpServlet {
         String query = "SELECT * FROM users WHERE secretKey=?";
         PreparedStatement statement = connection.prepareStatement(query);
         statement.setString(1, key);
-        ResultSet rs = statement.executeQuery();
+        //ResultSet rs = statement.executeQuery();
         
-        String dbSecretKey = rs.getString("secretKey");
-        int dbMin = rs.getInt("dataKey");
-        int dbCurr = LocalDateTime.now().getMinute();       
+        //String dbSecretKey = rs.getString("secretKey");
+        //Date dbDateKey = rs.getDate("dateKey");
+        //Date dbCurr = new Date(System.currentTimeMillis());     
         
         query = "DELETE FROM users WHERE secretKey=?";
     	PreparedStatement preparedStatement = connection.prepareStatement(query);
