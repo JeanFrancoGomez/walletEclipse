@@ -1,4 +1,4 @@
-package demo1;
+package demo1.utility;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -29,4 +29,3 @@ public class PersistenceUtility {
 		return emf.createEntityManager();
 	}
 }
-

@@ -1,25 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration status="warn">
-    <Properties>
-        <Property name="basePath">C:\\tmp</Property>
-    </Properties>
+	<Properties>
+		<Property name="basePath">C:\\tmp\\</Property>
+	</Properties>
 
-    <Appenders>
-        <RollingFile name="fileLogger" fileName="${basePath}/LoggingSample.log" filePattern="${basePath}/LoggingSample-%d{yyyy-MM-dd}.log">
-            <PatternLayout>
-                <pattern>[%d{HH:mm:ss.SSS}] [%t] %-5level %logger{36} - %msg%n</pattern>
-            </PatternLayout>
-            <Policies>
-                <TimeBasedTriggeringPolicy modulate="true" interval="1" />
-            </Policies>
-        </RollingFile>
-    </Appenders>
-    <Loggers>
-        <!--<Logger name="com.howtodoinjava" level="debug" additivity="true">
-            <appender-ref ref="fileLogger" level="debug" />
-        </Logger> -->
-        <Root additivity="true" level="warn">
-            <appender-ref ref="fileLogger" />
-        </Root>
-    </Loggers>
+	<Appenders>
+		<RollingFile name="demo1"
+			fileName="${basePath}/demo1.log"
+			filePattern="${basePath}/demo1-%d{yyyy-MM-dd}.log">
+			<PatternLayout>
+				<pattern>[%d{HH:mm:ss.SSS}] [%t] %-5level %logger{36} - %msg%n
+				</pattern>
+			</PatternLayout>
+			<Policies>
+				<TimeBasedTriggeringPolicy interval="1"
+					modulate="true" />
+			</Policies>
+		</RollingFile>
+
+	</Appenders>
+	<Loggers>
+		<!-- <Logger name="com.howtodoinjava" level="debug" additivity="true"> 
+			<appender-ref ref="fileLogger" level="debug" /> </Logger> -->
+		<Root level="info" additivity="true">
+			<appender-ref ref="demo1" />
+		</Root>
+	</Loggers>
 </Configuration>
