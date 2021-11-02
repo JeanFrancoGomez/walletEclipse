@@ -32,7 +32,6 @@ public class LoginServlet extends HttpServlet {
 		LOGGER.info("Received login request");
 
 		String message;
-
 		String email = request.getParameter("email");
 		String password = request.getParameter("password");
 		
