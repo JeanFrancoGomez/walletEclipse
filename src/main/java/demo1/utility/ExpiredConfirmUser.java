@@ -3,6 +3,7 @@ package demo1.utility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import demo1.manager.SessionManager;
 import demo1.manager.UsersManager;
 
 public class ExpiredConfirmUser implements Runnable {
@@ -23,6 +24,7 @@ public class ExpiredConfirmUser implements Runnable {
 	@Override
 	public void run() {
 		UsersManager uManager = new UsersManager();
+		SessionManager sManager = new SessionManager();
 
 		while (keepRunning) {
 			LOGGER.info("Querying for expired users");
@@ -40,6 +42,8 @@ public class ExpiredConfirmUser implements Runnable {
 			
 			//Delete with JPQL query
 			uManager.deleteUsersToConfirmUser();
+			uManager.deleteExpiredSession();
+			sManager.deleteNullSession();
 
 			// Sleeps for configured sleep time
 			try {

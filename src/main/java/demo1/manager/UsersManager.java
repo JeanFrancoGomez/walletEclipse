@@ -14,6 +14,8 @@ import demo1.enity.UsersStatus;
 public class UsersManager extends AbstractEntityManager<Users> {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(UsersManager.class);
+	private final long TIME_TO_CONFIRM_USER = 1* 60 * 1000;
+	private final long LIFE_TIME_SESSION = 2* 60 * 1000;
 	
 	public UsersManager() {
 		super(Users.class);
@@ -83,11 +85,11 @@ public class UsersManager extends AbstractEntityManager<Users> {
 	 */
 	public List<Users> findToConfirmUser() {
 		// Date dayBefore = Date.from(LocalDateTime.now().minusDays(1).toInstant(ZoneOffset.UTC));
-		Date fiveMinBefore = new Date(System.currentTimeMillis() - (5* 60 * 1000));
+		Date minBefore = new Date(System.currentTimeMillis() - this.TIME_TO_CONFIRM_USER);
 		
 		Map<String, Object> params = new HashMap<>(2);
 		params.put("stateData", UsersStatus.TO_CONFIRM);
-		params.put("dateKeyData", fiveMinBefore);
+		params.put("dateKeyData", minBefore);
 		
 		return super.findByNamedJPQLQuery("findUsersNotConfirmed", params); 
 	}
@@ -99,14 +101,25 @@ public class UsersManager extends AbstractEntityManager<Users> {
 	 */
 	public void deleteUsersToConfirmUser() {
 		// Date dayBefore = Date.from(LocalDateTime.now().minusDays(1).toInstant(ZoneOffset.UTC));
-		Date fiveMinBefore = new Date(System.currentTimeMillis() - (5* 60 * 1000));
+		Date minBefore = new Date(System.currentTimeMillis() - this.TIME_TO_CONFIRM_USER);
 		
 		Map<String, Object> params = new HashMap<>(2);
 		params.put("stateData", UsersStatus.TO_CONFIRM);
-		params.put("dateKeyData", fiveMinBefore);
+		params.put("dateKeyData", minBefore);
 		
 		int numUserDelete = super.updateByNamedJPQLStatement("deleteUsersToConfirm", params);
-		LOGGER.info( numUserDelete + " users was/were deleted because not are confirmed.");
+		LOGGER.info( numUserDelete + " users were deleted because did not confirm.");
+	}
+	
+	public void deleteExpiredSession() {
+		// Date dayBefore = Date.from(LocalDateTime.now().minusDays(1).toInstant(ZoneOffset.UTC));
+		Date minBefore = new Date(System.currentTimeMillis() - this.LIFE_TIME_SESSION);
+		
+		Map<String, Object> params = new HashMap<>(1);
+		params.put("dateStartSessionData", minBefore);
+		
+		int numUser = super.updateByNamedJPQLStatement("deleteExpiredSession", params);
+		LOGGER.info( numUser + " sessions expired.");
 	}
 	
 }

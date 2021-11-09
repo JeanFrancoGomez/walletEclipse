@@ -5,45 +5,79 @@ import java.util.Objects;
 
 import javax.persistence.*;
 
+
 @Entity
 @Table(name = "users")
+@SecondaryTable(name = "session", pkJoinColumns = @PrimaryKeyJoinColumn(name = "idusers", referencedColumnName = "idusers"))
 @NamedQueries({ 
 	@NamedQuery(name = "findUserByEmail", query = "SELECT u FROM Users u WHERE u.email = :emailData"),
 	@NamedQuery(name = "findUserBySecretKey", query = "SELECT u FROM Users u WHERE u.secretKey = :secretKeyData"),
 	@NamedQuery(name = "findUsersNotConfirmed", query = "SELECT u FROM Users u WHERE u.stateUser = :stateData AND u.dateKey < :dateKeyData"),
-	@NamedQuery(name = "deleteUsersToConfirm", query = "DELETE FROM Users u WHERE u.stateUser = :stateData AND u.dateKey < :dateKeyData")
-	//@NamedQuery(name="changeStatusToConfirmed",query="UPDATE Users AS u SET u.stateUser = :stateData WHERE u.idusers = :idUsersData")
-	// @NamedQuery(name="newSecretKeyByEmail",query="UPDATE Users u SET u.secretKey
-	// = :secretKeyData WHERE u.email = :emailData")
-	// @NamedQuery(name="deleteUserBySecretKey",query="DELETE u FROM Users u WHERE
-	// u.secretKey = :secretKeyData")
+	@NamedQuery(name = "deleteUsersToConfirm", query = "DELETE FROM Users u WHERE u.stateUser = :stateData AND u.dateKey < :dateKeyData"),
+	@NamedQuery(name = "deleteExpiredSession", query = "UPDATE Users u SET u.sessionKey = NULL WHERE u.dateStartSession < :dateStartSessionData")
 })
 public class Users {
+
+	@Id
+	@Column(name = "idusers", updatable=false, nullable=false)
 	private int idusers;
+	
+	@Basic
+	@Column(name = "role")
+	@Enumerated(EnumType.STRING)
+	private UsersRole role;
+	
+	@Basic
+	@Column(name = "email", unique = true, length = 256)
 	private String email;
+	
+	@Basic
+	@Column(name = "name")
 	private String name;
+	
+	@Basic
+	@Column(name = "surname")
 	private String surname;
+	
+	@Basic
+	@Column(name = "password")
 	private String password;
+	
+	@Basic
+	@Column(name = "secretKey")
 	private String secretKey;
+	
+	@Basic
+	@Column(name = "dateKey")
 	private Date dateKey;
+	
+	@Basic
+	@Column(name = "stateUser")
+	@Enumerated(EnumType.STRING)
 	private UsersStatus stateUser;
+	
+	@Column(table = "session")
+	private String sessionKey;
+	
+	@Column(table = "session")
+	private Date dateStartSession;
 
 	public Users() {
-	}
-	
-	public Users(String email, String name, String surname, String password, String secretKey, Date dataKey, UsersStatus stateUser) {
+	}	 
+
+	public Users(UsersRole role, String email, String name, String surname,
+			String password, String secretKey, Date dateKey, UsersStatus stateUser) {
 		super();
+		this.role = role;
 		this.email = email;
 		this.name = name;
 		this.surname = surname;
 		this.password = password;
 		this.secretKey = secretKey;
-		this.dateKey = dataKey;
+		this.dateKey = dateKey;
 		this.stateUser = stateUser;
 	}
 
-	@Id
-	//@GeneratedValue(strategy = GenerationType.AUTO)
 	public int getIdusers() {
 		return idusers;
 	}
@@ -52,8 +86,14 @@ public class Users {
 		this.idusers = idusers;
 	}
 
-	@Basic
-	@Column(name = "email", unique = true, length = 256)
+	public UsersRole getRole() {
+		return role;
+	}
+
+	public void setRole(UsersRole role) {
+		this.role = role;
+	}
+
 	public String getEmail() {
 		return email;
 	}
@@ -62,8 +102,6 @@ public class Users {
 		this.email = email;
 	}
 
-	@Basic
-	@Column(name = "name")
 	public String getName() {
 		return name;
 	}
@@ -72,8 +110,6 @@ public class Users {
 		this.name = name;
 	}
 
-	@Basic
-	@Column(name = "surname")
 	public String getSurname() {
 		return surname;
 	}
@@ -82,8 +118,6 @@ public class Users {
 		this.surname = surname;
 	}
 
-	@Basic
-	@Column(name = "password")
 	public String getPassword() {
 		return password;
 	}
@@ -92,8 +126,6 @@ public class Users {
 		this.password = password;
 	}
 
-	@Basic
-	@Column(name = "secretKey")
 	public String getSecretKey() {
 		return secretKey;
 	}
@@ -102,8 +134,6 @@ public class Users {
 		this.secretKey = secretKey;
 	}
 
-	@Basic
-	@Column(name = "dateKey")
 	public Date getDateKey() {
 		return dateKey;
 	}
@@ -112,15 +142,28 @@ public class Users {
 		this.dateKey = dateKey;
 	}
 
-	@Basic
-	@Column(name = "stateUser")
-	@Enumerated(EnumType.STRING)
 	public UsersStatus getStateUser() {
 		return stateUser;
 	}
 
-	public void setStateUser(UsersStatus newStatus) {
-		this.stateUser = newStatus;
+	public void setStateUser(UsersStatus stateUser) {
+		this.stateUser = stateUser;
+	}
+
+	public String getSessionKey() {
+		return sessionKey;
+	}
+
+	public void setSessionKey(String sessionKey) {
+		this.sessionKey = sessionKey;
+	}
+
+	public Date getDateStartSession() {
+		return dateStartSession;
+	}
+
+	public void setDateStartSession(Date dateStartSession) {
+		this.dateStartSession = dateStartSession;
 	}
 
 	@Override
@@ -132,24 +175,48 @@ public class Users {
 		if (getClass() != obj.getClass())
 			return false;
 		Users other = (Users) obj;
-		return Objects.equals(dateKey, other.dateKey) && Objects.equals(email, other.email) && idusers == other.idusers
-				&& Objects.equals(name, other.name) && Objects.equals(password, other.password)
-				&& Objects.equals(secretKey, other.secretKey) && stateUser == other.stateUser
-				&& Objects.equals(surname, other.surname);
+		return Objects.equals(dateKey, other.dateKey) && Objects.equals(dateStartSession, other.dateStartSession)
+				&& Objects.equals(email, other.email) && idusers == other.idusers && Objects.equals(name, other.name)
+				&& Objects.equals(password, other.password) && role == other.role
+				&& Objects.equals(secretKey, other.secretKey) && Objects.equals(sessionKey, other.sessionKey)
+				&& stateUser == other.stateUser && Objects.equals(surname, other.surname);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(dateKey, email, idusers, name, password, secretKey, stateUser, surname);
+		return Objects.hash(dateKey, dateStartSession, email, idusers, name, password, role, secretKey, sessionKey,
+				stateUser, surname);
 	}
 
 	@Override
 	public String toString() {
-		return "Users [idusers=" + idusers + ", email=" + email + ", name=" + name + ", surname=" + surname
-				+ ", password=XXXXXX" + ", secretKey=XXXXXX"+ ", dateKey=" + dateKey + ", stateUser="
-				+ stateUser + "]";
+		StringBuilder builder = new StringBuilder();
+		builder.append("Users [idusers=");
+		builder.append(idusers);
+		builder.append(", role=");
+		builder.append(role);
+		builder.append(", email=");
+		builder.append(email);
+		builder.append(", name=");
+		builder.append(name);
+		builder.append(", surname=");
+		builder.append(surname);
+		builder.append(", password=");
+		builder.append(password);
+		builder.append(", secretKey=");
+		builder.append(secretKey);
+		builder.append(", dateKey=");
+		builder.append(dateKey);
+		builder.append(", stateUser=");
+		builder.append(stateUser);
+		builder.append(", sessionKey=");
+		builder.append(sessionKey);
+		builder.append(", dateStartSession=");
+		builder.append(dateStartSession);
+		builder.append("]");
+		return builder.toString();
 	}
-	
-	
-	
+
+
+
 }

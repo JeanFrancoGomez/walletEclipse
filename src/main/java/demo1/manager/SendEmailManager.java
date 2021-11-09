@@ -30,7 +30,7 @@ public class SendEmailManager {
 	}
 	
 	public void send( String subjet, String email, String message ) throws MessagingException { 
-		Session messageSession = Session.getDefaultInstance(properties, new Authenticator() {
+		Session messageSession = Session.getInstance(properties, new Authenticator() {
 			protected PasswordAuthentication getPasswordAuthentication() {
 				try {
 					return new PasswordAuthentication(appProp.getUserMail(), appProp.getPswMail());

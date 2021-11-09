@@ -25,18 +25,16 @@ public class ChangePasswordServlet extends HttpServlet {
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)	throws ServletException, IOException {
 		
-		String email = request.getParameter("inputEmail");
+		String email = request.getParameter("emailIn");
 		String newPass = request.getParameter("inPassword");
 		String repPass = request.getParameter("repPassword");
-		
-		String a = request.getParameter("email");
-		System.out.println(a);
 		
 		Users user = this.userManager.findByEmail(email);
 		if(newPass.equals(repPass)) {
 			user.setPassword(PasswordManager.createHash(newPass));
 			this.userManager.merge(user);
-			request.getServletContext().getRequestDispatcher("/index.jsp").forward(request, response);
+			request.setAttribute( "name", user.getName() );
+			request.getServletContext().getRequestDispatcher("/messagePasswordChange.jsp").forward(request, response);
 		}
 		else {
 			request.getServletContext().getRequestDispatcher("/passDif_changePass.jsp").include(request, response);

@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import demo1.enity.Users;
+import demo1.enity.UsersRole;
 import demo1.enity.UsersStatus;
 import demo1.manager.PasswordManager;
 import demo1.manager.SendEmailManager;
@@ -57,11 +58,11 @@ public class RegisterServlet extends HttpServlet {
 		String secretKey = request.getParameter("secret");
 
 		if ( secretKey!=null && confirmUser(secretKey) ) {
-				request.getServletContext().getRequestDispatcher("/index.jsp").include(request, response);
+			request.getServletContext().getRequestDispatcher("/index.jsp").include(request, response);
 		} else {
 			throw new RuntimeException("Wrong secret key");
 		}
-		
+
 	}
 
 	@Override
@@ -73,7 +74,7 @@ public class RegisterServlet extends HttpServlet {
 			keyGen.init(128);
 			SecretKey secretKey = keyGen.generateKey();
 			String key = Base64.getEncoder().encodeToString(secretKey.getEncoded());
-
+			
 			String name = request.getParameter("firstName");
 			String lastName = request.getParameter("lastName");
 			String email = request.getParameter("inputEmail");
@@ -91,13 +92,14 @@ public class RegisterServlet extends HttpServlet {
 
 			if (pass.equals(repPass)) {
 
-				Users newUser = new Users(email, name, lastName, PasswordManager.createHash(pass), key, new Date(), UsersStatus.TO_CONFIRM);
+				Users newUser = new Users(UsersRole.USER, email, name, lastName, PasswordManager.createHash(pass), 
+						key, new Date(), UsersStatus.TO_CONFIRM);
 				this.userManager.create(newUser);
 
 				String htmlMessage = "<h3>By clicking on the link you accept the processing of your data for access to our service, thank you.</h3>"
 						+ "<a href='" + appProp.getUriServer() + "/register?secret=" + key + "'>"
 						+ "Confirm registration" + "</a>";
-				
+
 				this.emailManager.send("Confirm user", email,htmlMessage);
 
 				request.setAttribute("nameNewUser", name);

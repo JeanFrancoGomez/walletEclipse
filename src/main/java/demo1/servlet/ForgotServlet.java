@@ -40,7 +40,7 @@ public class ForgotServlet extends HttpServlet {
 
 			if (key != null && user != null) {
 				request.setAttribute( "name", user.getName() );
-				request.setAttribute( "emailTest", user.getEmail() );
+				request.setAttribute( "email", user.getEmail() );
 				request.getServletContext().getRequestDispatcher("/newPassword.jsp").include(request, response);
 			} else {
 				throw new RuntimeException("Wrong secret key");

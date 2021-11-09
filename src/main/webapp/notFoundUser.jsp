@@ -1,5 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
-	pageEncoding="ISO-8859-1"%>
+	pageEncoding="ISO-8859-1"
+	session="false"
+%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -23,7 +25,6 @@
 					<div class="p-5">
 						<div class="text-center">
 							<h1 class="h4 text-gray-900 mb-4"><%= request.getAttribute("message") %>
-								not found user
 							</h1>
 						</div>
 					</div>

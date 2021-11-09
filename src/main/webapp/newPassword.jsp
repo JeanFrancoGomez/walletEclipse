@@ -1,5 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
-	pageEncoding="ISO-8859-1"%>
+	pageEncoding="ISO-8859-1"
+	session="false"
+%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -28,7 +30,7 @@
 							<div class="text-center">
 								<h1 class="h4 text-gray-900 mb-4">Reset your password!</h1>
 							</div>
-							<form action="./forgotPassword" method="get">
+							<form action="./changePassword" method="post">
 								<div class="form-group row">
 									<div class="col-sm-6 mb-3 mb-sm-0">
 										<h5 style="text-align: center" class="lead">
@@ -36,11 +38,16 @@
 										</h5>
 									</div>
 								</div>
+								<div>
+									<input type="hidden" name="emailIn" value=<%=request.getAttribute("email")%> >
+								</div>
+								<!--  
 								<div class="form-group">
 									<input required type="email"
 										class="form-control form-control-user" id="inputEmail"
 										name="inputEmail" placeholder="Email Address">
 								</div>
+								-->
 								<div class="form-group">
 									<input required type="password"
 										class="form-control form-control-user" id="inPassword"
