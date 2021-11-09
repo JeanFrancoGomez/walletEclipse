@@ -1,5 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
-	pageEncoding="ISO-8859-1"%>
+	pageEncoding="ISO-8859-1"
+	session="false"
+%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -21,7 +23,13 @@
 				<div class="col-lg-6">
 					<div class="p-5">
 						<div class="text-center">
-							<h1 class="h4 text-gray-900 mb-4"><%=request.getAttribute("message")%> your email is being deleted.</h1>
+							<h1 class="h4 text-gray-900 mb-4"><%=request.getAttribute("name")%>
+								your password was changed.
+							</h1>
+						</div>
+						<hr>
+						<div class="text-center">
+							<a class="small" href="index.jsp">Login</a>
 						</div>
 					</div>
 				</div>

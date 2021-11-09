@@ -1,5 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
-	pageEncoding="ISO-8859-1"%>
+	pageEncoding="ISO-8859-1" session="false"%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -13,6 +13,7 @@
 <title>Demo Servlet</title>
 </head>
 <body>
+
 	<div class="card o-hidden border-0 shadow-lg my-5">
 		<div class="card-body p-0">
 			<!-- Nested Row within Card Body -->
@@ -21,19 +22,18 @@
 				<div class="col-lg-6">
 					<div class="p-5">
 						<div class="text-center">
-							<h1 class="h4 text-gray-900 mb-4"><%=request.getAttribute("message")%>
-								check your email to confirm the user.
+							<h1 class="h4 text-gray-900 mb-4"><%= request.getAttribute("message") %>
 							</h1>
-						</div>
-						<hr>
-						<div class="text-center">
-							<a class="small" href="forgot-password.jsp">Forgot Password?</a>
+							<div>
+								<a class="btn btn-primary btn-user btn-block" href="./sessionServlet">Start session</a>
+							</div>
 						</div>
 					</div>
 				</div>
 			</div>
 		</div>
 	</div>
+
 </body>
 
 </html>
